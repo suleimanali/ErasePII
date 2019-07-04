@@ -51,6 +51,13 @@ namespace ErasePII.WebApiApplicationUser
             //Task.WaitAll(Task.Run(async () => await EraseTextFieldTypeAsync()));
         }
 
+        private static  async Task EraseRecords(string reqLink = null)
+        {
+
+        }
+
+
+
         private static async Task EraseTextFieldTypeAsync(string reqLink = null)
         {
             try
@@ -85,18 +92,21 @@ namespace ErasePII.WebApiApplicationUser
                                 reqResults["value"].Select(e => (Guid)e.SelectToken(_entityIdLogicalName)).ToList();
                             var newEntityJObject = new JObject { { _fieldName, _fieldValue } };
                             Console.WriteLine(reqResultList.Count);
-                      
-                            //foreach (var reqGuid in reqResultList)
-                            //{
-                            //    var updateResourceUri =
-                            //        new Uri(_resource + "/api/data/v9.1/" + _entityName + "s(" + reqGuid + ")");
-                            //    var updaterequest = new HttpRequestMessage(new HttpMethod("PATCH"), updateResourceUri);
-                            //    updaterequest.Content = new StringContent(newEntityJObject.ToString(), Encoding.UTF8, "application/json");
 
-                            //    var updateResponse = httpClient
-                            //        .SendAsync(updaterequest, HttpCompletionOption.ResponseContentRead).Result;
-                            //    Console.WriteLine(updateResponse.IsSuccessStatusCode);
-                            //}
+                            foreach (var reqGuid in reqResultList)
+                            {
+                                var updateResourceUri =
+                                    new Uri(_resource + "/api/data/v9.1/" + _entityName + "s(" + reqGuid + ")");
+                                //var updaterequest = new HttpRequestMessage(
+                                //    HttpMethod.Delete, updateResourceUri);
+                                //updaterequest.Content = new StringContent(newEntityJObject.ToString(), Encoding.UTF8, "application/json");
+
+                                var deleteResponse = await httpClient.DeleteAsync(updateResourceUri);
+
+                                //var updateResponse = httpClient
+                                //    .SendAsync(updaterequest, HttpCompletionOption.ResponseContentRead).Result;
+                                Console.WriteLine(deleteResponse.IsSuccessStatusCode);
+                            }
                         }
                         if (reqResults.Count == 3)
                         {
@@ -159,8 +169,8 @@ namespace ErasePII.WebApiApplicationUser
                     EraseOptionSetFieldData(_fieldName, _optionSetValue);
                     break;
                 case FieldType.Text:
-                    //Task.WaitAll(Task.Run(async () => await EraseTextFieldTypeAsync()));
-                    EraseTextFieldData(_fieldName);
+                    Task.WaitAll(Task.Run(async () => await EraseTextFieldTypeAsync()));
+                    //EraseTextFieldData(_fieldName);
                     break;
                 case FieldType.MultipleFieldsWithTypes:
                     Task.WaitAll(Task.Run(async () => await EraseMultipleFieldsWithTypesAsync()));
